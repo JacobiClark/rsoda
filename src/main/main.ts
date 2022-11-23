@@ -15,6 +15,61 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import { resolveHtmlPath } from './util';
 
+const PY_DIST_FOLDER = 'pyflaskdist';
+const PY_FOLDER = 'pyflask';
+const PY_MODULE = 'api';
+
+let pyProc: { kill: () => void } | null = null;
+const pyPort = '5000'; // Flask default port
+
+const guessPackaged = () => {
+  const fullPath = path.join(__dirname, PY_DIST_FOLDER);
+  return require('fs').existsSync(fullPath);
+};
+
+// check if the python dist folder exists
+const getScriptPath = () => {
+  if (!guessPackaged()) {
+    return path.join(__dirname, PY_FOLDER, `${PY_MODULE}.py`);
+  }
+  if (process.platform === 'win32') {
+    return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, `${PY_MODULE}.exe`);
+  }
+
+  return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE);
+};
+
+// create the python process
+const createPyProc = () => {
+  const script = getScriptPath();
+
+  if (guessPackaged()) {
+    pyProc = require('child_process').execFile(script, [pyPort], {
+      stdio: 'ignore',
+    });
+  } else {
+    pyProc = require('child_process').spawn('python', [script, pyPort], {
+      stdio: 'ignore',
+    });
+  }
+
+  if (pyProc != null) {
+    console.log(`child process success on port ${pyPort}`);
+  } else {
+    console.error(`child process failed to start on port${pyPort}`);
+  }
+};
+
+// Close the webserver process on app exit
+const exitPyProc = () => {
+  pyProc.kill();
+  pyProc = null;
+  pyPort = null;
+};
+
+app.on('ready', createPyProc);
+app.on('will-quit', exitPyProc);
+
 class AppUpdater {
   constructor() {
     log.transports.file.level = 'info';

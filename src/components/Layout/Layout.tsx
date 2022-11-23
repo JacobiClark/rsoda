@@ -194,7 +194,10 @@ export default function Layout({ children }: LayoutProps) {
           ))}
         </List>
       </Drawer>
-      <Box component="main" sx={{ flexGrow: 1, p: 3, backgroundColor: 'pink' }}>
+      <Box
+        component="main"
+        sx={{ flexGrow: 1, p: 2, backgroundColor: 'pink', marginTop: '64px' }}
+      >
         {children}
       </Box>
     </Box>
