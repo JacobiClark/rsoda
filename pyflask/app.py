@@ -20,4 +20,4 @@ def echo():
 # :5000 is the flask default port.
 # You can change it to something else if you would like.
 if __name__ == '__main__':
-    app.run(host='localhost', port=1212)
+    app.run(host='localhost', port=5000)
