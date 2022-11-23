@@ -14,6 +14,7 @@ import Toolbar from '@mui/material/Toolbar';
 import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import Link from '@mui/material/Link';
+import swr from 'swr';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 
 function Copyright() {
@@ -33,6 +34,10 @@ const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const theme = createTheme();
 
 export default function Home() {
+  const { data, error } = swr('/hello');
+
+  if (error) return <div>failed to load</div>;
+  if (!data) return <div>loading...</div>;
   return (
     <Container
       sx={{
