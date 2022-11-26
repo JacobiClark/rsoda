@@ -9,6 +9,7 @@ import Home from '../components/Home/Home';
 import icon from '../../assets/icon.svg';
 
 const SERVER_URL = 'http://localhost:5000';
+
 export default function App() {
   return (
     <SWRConfig

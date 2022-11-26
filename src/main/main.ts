@@ -8,7 +8,7 @@
  * When running `npm run build` or `npm run build:main`, this file is compiled to
  * `./src/main.js` using webpack. This gives us some performance wins.
  */
-import path from 'path';
+import path, { dirname } from 'path';
 import { app, BrowserWindow, shell, ipcMain } from 'electron';
 import { autoUpdater } from 'electron-updater';
 import log from 'electron-log';
@@ -18,9 +18,12 @@ import { resolveHtmlPath } from './util';
 let pyProc = null;
 let pyPort = '5000'; // Flask default port
 
+const appDir = dirname(require.main?.filename);
+console.log(appDir);
+
 const PY_DIST_FOLDER = 'pyflaskdist';
 const PY_FOLDER = 'pyflask';
-const PY_MODULE = 'api';
+const PY_MODULE = 'app';
 
 const guessPackaged = () => {
   const fullPath = path.join(__dirname, PY_DIST_FOLDER);
@@ -30,18 +33,23 @@ const guessPackaged = () => {
 // check if the python dist folder exists
 const getScriptPath = () => {
   if (!guessPackaged()) {
-    return path.join(__dirname, PY_FOLDER, PY_MODULE + '.py');
+    return path.join(process.cwd(), PY_FOLDER, PY_MODULE + '.py');
   }
   if (process.platform === 'win32') {
-    return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE + '.exe');
+    return path.join(
+      process.cwd(),
+      PY_DIST_FOLDER,
+      PY_MODULE,
+      PY_MODULE + '.exe'
+    );
   }
-
-  return path.join(__dirname, PY_DIST_FOLDER, PY_MODULE, PY_MODULE);
+  return path.join(process.cwd(), PY_DIST_FOLDER, PY_MODULE, PY_MODULE);
 };
 
 // create the python process
 const createPyProc = () => {
   let script = getScriptPath();
+  console.log('script-----' + script);
 
   if (guessPackaged()) {
     pyProc = require('child_process').execFile(script, [pyPort], {
